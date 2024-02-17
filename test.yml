@@ -1,0 +1,13 @@
+- hosts: centos1
+  vars:
+    testvar:
+      centos1: 
+       ip1: "45.45.45.45"
+       ip2: "172.16.0.5"
+      centos2: 
+       ip1: "56.56.56.56"
+       ip2: "172.16.0.6"
+  tasks:
+  - debug:
+      msg: "{{ testvar[item]['ip1'] }}"
+    with_items: "{{ testvar }}"

@@ -1,0 +1,41 @@
+- hosts: all
+  tasks:
+  - debug:
+      msg: "{{ hostvars[item]['ansible_host'] }}"
+    with_items: "{{ hostvars }}"
+
+  - name: Update /etc/hosts
+    lineinfile:
+      path: /etc/hosts
+      line: "{{ hostvars[item]['ansible_host'] }} {{ item }}"
+    with_items: "{{ hostvars }}"
+
+  - name: Replace /etc/resolv.conf
+    lineinfile:
+      path: /etc/resolv.conf
+      regexp: '^nameserver 6'
+      line: "{{ item }}"
+    with_items:
+      - "nameserver 8.8.8.8"
+      - "nameserver 8.8.4.4"
+
+  - name: Replace /etc/chrony.conf 
+    lineinfile:
+      path: /etc/chrony.conf 
+      regexp: '^server [0-9]'
+      line: "{{ item }}"
+    with_items:
+      - "server time1.google.com iburst"
+      - "server time2.google.com iburst"
+
+  - name: Clean up /etc/chrony.conf 
+    lineinfile:
+      path: /etc/chrony.conf 
+      regexp: '^server [0-9]'
+      state: absent
+
+  - name: Restart chronyd
+    systemd:
+      state: restarted
+      name: chronyd
+    
